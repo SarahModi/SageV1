@@ -45,3 +45,9 @@ sage --help
 - sage scan --profile my-aws-profile --quiet     # Only findings
 - sage scan --format json                        # JSON output
 - sage scan --help                               # All options
+  
+
+# Exit Codes (for CI/CD):
+0 = No critical issues
+
+1 = Critical issues found
