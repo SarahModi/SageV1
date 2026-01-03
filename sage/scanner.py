@@ -8,6 +8,7 @@ import sys
 from typing import List, Dict, Any
 from .aws_client import AWSClient
 from .rules.public_s3 import check_public_s3_buckets
+from .rules.mfa_admins import check_mfa_for_admins
 
 def scan_account(profile: str = "default", region: str = "us-east-1", verbose: bool = False) -> List[Dict[str, Any]]:
     """
@@ -68,21 +69,28 @@ def scan_account(profile: str = "default", region: str = "us-east-1", verbose: b
             else:
                 print("      ✅ No public S3 buckets found")
         
-        # CHECK 2: Admin Users without MFA (Placeholder - File 6)
+                # CHECK 2: Admin Users without MFA (Now Implemented!)
         if verbose:
             print("\n   2️⃣  Checking Admin Users without MFA...")
-            print("      (Rule implementation coming in File 6)")
         
-        # Add placeholder finding to show structure
-        findings.append({
-            'id': 'PLACEHOLDER_MFA_CHECK',
-            'severity': 'MEDIUM',
-            'title': 'MFA Check Not Implemented Yet',
-            'resource': 'arn:aws:iam::*:user/*',
-            'description': 'This check will be implemented in File 6. It will find admin users without MFA enabled.',
-            'remediation': 'Coming soon in the next update!',
-            'impact': 'Placeholder - real check coming soon'
-        })
+        from .rules.mfa_admins import check_mfa_for_admins
+        mfa_findings = check_mfa_for_admins(client)
+        findings.extend(mfa_findings)
+        
+        if verbose:
+            if mfa_findings:
+                critical_mfa = sum(1 for f in mfa_findings if f['severity'] == 'CRITICAL')
+                root_mfa = sum(1 for f in mfa_findings if f['id'] == 'ROOT_ACCOUNT_NO_MFA')
+                admin_mfa = sum(1 for f in mfa_findings if 'MFA_MISSING_ADMIN' in f['id'])
+                
+                if root_mfa > 0:
+                    print(f"      🔴 URGENT: Root account has no MFA!")
+                if admin_mfa > 0:
+                    print(f"      🔴 Found: {admin_mfa} admin users without MFA")
+                if critical_mfa > 0:
+                    print(f"      Found: {len(mfa_findings)} MFA issues ({critical_mfa} critical)")
+            else:
+                print("      ✅ All admin users have MFA enabled")
         
         # CHECK 3: Wildcard Policies (Placeholder - File 7)
         if verbose:
