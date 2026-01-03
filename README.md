@@ -27,3 +27,21 @@ sage --help
 🚪 Open SSH/RDP ports
 
 🔑 Old access keys
+
+# ONE-TIME SETUP
+- python3 -m venv venv          # Create virtual environment
+- source venv/bin/activate      # Activate it
+- git clone https://github.com/SarahModi/sagev1.git
+- cd sagev1
+- pip install -e .              # Install Sage
+- aws configure --profile my-aws-profile
+
+# WHENEVER YOU WANT TO SCAN
+- source venv/bin/activate      # If venv not active
+- sage scan --profile my-aws-profile
+
+# OPTIONAL FLAGS
+- sage scan --profile my-aws-profile --verbose   # See details
+- sage scan --profile my-aws-profile --quiet     # Only findings
+- sage scan --format json                        # JSON output
+- sage scan --help                               # All options
