@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="Sage-iam",
+    name="sage-iam",
     version="1.0.0",
     author="Sarah Modi",
+    author_email="sarah@roeh.security",
     description="Sage: AWS Security Scanner - Find the 5 misconfigurations that cause breaches",
-    url="https://github.com/SarahModi/SageV1",
-    packages=find_packages(),
+    url="https://github.com/SarahModi/sagev1",
+    packages=find_packages(include=['sage', 'sage.*']),
     install_requires=["boto3>=1.26.0"],
     entry_points={
         "console_scripts": ["sage=sage.cli:main"],
