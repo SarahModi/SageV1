@@ -9,6 +9,7 @@ from typing import List, Dict, Any
 from .aws_client import AWSClient
 from .rules.public_s3 import check_public_s3_buckets
 from .rules.mfa_admins import check_mfa_for_admins
+from .rules.wildcard_policies import check_wildcard_policies
 
 def scan_account(profile: str = "default", region: str = "us-east-1", verbose: bool = False) -> List[Dict[str, Any]]:
     """
@@ -92,10 +93,20 @@ def scan_account(profile: str = "default", region: str = "us-east-1", verbose: b
             else:
                 print("      ✅ All admin users have MFA enabled")
         
-        # CHECK 3: Wildcard Policies (Placeholder - File 7)
+                # CHECK 3: Wildcard Policies (Now Implemented!)
         if verbose:
             print("\n   3️⃣  Checking Wildcard Policies...")
-            print("      (Rule implementation coming in File 7)")
+        
+        from .rules.wildcard_policies import check_wildcard_policies
+        wildcard_findings = check_wildcard_policies(client)
+        findings.extend(wildcard_findings)
+        
+        if verbose:
+            if wildcard_findings:
+                high_wildcards = sum(1 for f in wildcard_findings if f['severity'] == 'HIGH')
+                print(f"      Found: {len(wildcard_findings)} wildcard policy issues ({high_wildcards} high severity)")
+            else:
+                print("      ✅ No dangerous wildcard policies found")
         
         # CHECK 4: Open SSH/RDP Ports (Placeholder - File 8)
         if verbose:
