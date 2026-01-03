@@ -156,10 +156,10 @@ class AWSClient:
         # Store original _make_request method
         original_make_request = client._make_request
         
-        # Create wrapped method with rate limiting
-        def rate_limited_make_request(operation_model, request_dict):
+        # Create wrapped method with rate limiting - FIXED SIGNATURE
+        def rate_limited_make_request(*args, **kwargs):
             self.rate_limiter.wait()
-            return original_make_request(operation_model, request_dict)
+            return original_make_request(*args, **kwargs)
         
         # Replace the method
         client._make_request = rate_limited_make_request
