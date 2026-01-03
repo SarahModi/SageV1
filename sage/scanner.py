@@ -10,6 +10,7 @@ from .aws_client import AWSClient
 from .rules.public_s3 import check_public_s3_buckets
 from .rules.mfa_admins import check_mfa_for_admins
 from .rules.wildcard_policies import check_wildcard_policies
+from .rules.open_ssh import check_open_ssh_rdp
 
 def scan_account(profile: str = "default", region: str = "us-east-1", verbose: bool = False) -> List[Dict[str, Any]]:
     """
@@ -108,10 +109,26 @@ def scan_account(profile: str = "default", region: str = "us-east-1", verbose: b
             else:
                 print("      ✅ No dangerous wildcard policies found")
         
-        # CHECK 4: Open SSH/RDP Ports (Placeholder - File 8)
+               # CHECK 4: Open SSH/RDP Ports (Now Implemented!)
         if verbose:
             print("\n   4️⃣  Checking Security Groups for Open Ports...")
-            print("      (Rule implementation coming in File 8)")
+        
+        from .rules.open_ssh import check_open_ssh_rdp
+        ssh_rdp_findings = check_open_ssh_rdp(client)
+        findings.extend(ssh_rdp_findings)
+        
+        if verbose:
+            if ssh_rdp_findings:
+                critical_ports = sum(1 for f in ssh_rdp_findings if f['severity'] == 'CRITICAL')
+                high_ports = sum(1 for f in ssh_rdp_findings if f['severity'] == 'HIGH')
+                ssh_count = sum(1 for f in ssh_rdp_findings if 'OPEN_PORT_' in f['id'] and '22' in f['id'])
+                rdp_count = sum(1 for f in ssh_rdp_findings if 'OPEN_PORT_' in f['id'] and '3389' in f['id'])
+                
+                if critical_ports > 0:
+                    print(f"      🔴 CRITICAL: Found {critical_ports} exposed ports with running instances!")
+                print(f"      Found: {ssh_count} open SSH, {rdp_count} open RDP ({len(ssh_rdp_findings)} total findings)")
+            else:
+                print("      ✅ No internet-exposed SSH/RDP ports found")
         
         # CHECK 5: Old Access Keys (Placeholder - File 9)
         if verbose:
