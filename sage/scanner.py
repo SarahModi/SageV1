@@ -11,6 +11,7 @@ from .rules.public_s3 import check_public_s3_buckets
 from .rules.mfa_admins import check_mfa_for_admins
 from .rules.wildcard_policies import check_wildcard_policies
 from .rules.open_ssh import check_open_ssh_rdp
+from .rules.old_keys import check_old_access_keys
 
 def scan_account(profile: str = "default", region: str = "us-east-1", verbose: bool = False) -> List[Dict[str, Any]]:
     """
@@ -130,10 +131,27 @@ def scan_account(profile: str = "default", region: str = "us-east-1", verbose: b
             else:
                 print("      ✅ No internet-exposed SSH/RDP ports found")
         
-        # CHECK 5: Old Access Keys (Placeholder - File 9)
+                # CHECK 5: Old Access Keys (Now Implemented - ALL 5 RULES COMPLETE!)
         if verbose:
             print("\n   5️⃣  Checking for Old Access Keys...")
-            print("      (Rule implementation coming in File 9)")
+        
+        from .rules.old_keys import check_old_access_keys
+        key_findings = check_old_access_keys(client)
+        findings.extend(key_findings)
+        
+        if verbose:
+            if key_findings:
+                old_key_count = sum(1 for f in key_findings if 'OLD_KEY_' in f['id'])
+                high_keys = sum(1 for f in key_findings if f['severity'] == 'HIGH' and 'OLD_KEY_' in f['id'])
+                print(f"      Found: {old_key_count} old access keys ({high_keys} >1 year old)")
+            else:
+                print("      ✅ All access keys are fresh (<90 days)")
+        
+        # ALL 5 CHECKS COMPLETE!
+        if verbose:
+            print("\n   " + "="*50)
+            print("   🎉 ALL 5 SECURITY CHECKS COMPLETE!")
+            print("   " + "="*50)
         
         # 4. Add summary finding if no critical issues found
         if not any(f['severity'] == 'CRITICAL' for f in findings):
