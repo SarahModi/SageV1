@@ -1,53 +1,89 @@
-# SageV1
-AWS Security Scanner. Find the 5 misconfigurations that actually cause breaches.
+# Sage - AWS Security Scanner
 
-# 🚀 Quick Install
+**Find the 5 AWS misconfigurations that actually cause breaches.**
 
+
+
+##  Quick Start
+
+
+# 1. Create virtual environment
 ```bash
-pip install git+https://github.com/SarahModi/SageV1.git
-
+python3 -m venv .venv
+source .venv/bin/activate
 ```
-# Usage
-## Configure AWS (one time)
+
+# 2. Install Sage
+```
+pip install git+https://github.com/SarahModi/SageV1.git
+```
+# 3. Configure AWS
+```
 aws configure --profile your-profile
-
-## Scan your account
+```
+# 4. Scan
+```
 sage scan --profile your-profile
-
-## Get help
-sage --help
+```
 
 # What Sage Finds
-🔴 Public S3 buckets (Capital One breach)
+Sage doesn't overwhelm you with 500 findings. It finds the 5 critical issues that cause real breaches:
 
-🔴 Admin users without MFA
+🔴 Public S3 buckets - Like the Capital One breach (106M records)
 
-⚠️ Wildcard policies
+🔴 Admin users without MFA - One password away from total takeover
 
-🚪 Open SSH/RDP ports
+⚠️ Wildcard policies - Could delete all your data
 
-🔑 Old access keys
+🚪 Open SSH/RDP ports - Constantly scanned by hackers
 
-# ONE-TIME SETUP
-- python3 -m venv venv          # Create virtual environment
-- source venv/bin/activate      # Activate it
-- git clone https://github.com/SarahModi/sagev1.git
-- cd sagev1
-- pip install -e .              # Install Sage
-- aws configure --profile my-aws-profile
+🔑 Old access keys - Often forgotten and leaked on GitHub
 
-# WHENEVER YOU WANT TO SCAN
-- source venv/bin/activate      # If venv not active
-- sage scan --profile my-aws-profile
+# Usage
+Basic Commands
+```bash
+# Scan AWS account
+sage scan
+sage scan --profile production
+```
+Get Help
+```
+sage --help
+sage scan --help
+```
+Show Version
+```
+sage version
+```
+# AWS setup help
+```
+sage configure
+```
+Advanced Options
+```
+# Different output formats
+sage scan --format json        # JSON for CI/CD
+sage scan --format csv         # CSV for spreadsheets
+sage scan --output results.json # Save to file
+```
+# Verbosity control
+```
+sage scan --verbose           # Show detailed progress
+sage scan --quiet             # Only show findings
+```
+# Region selection
+```
+sage scan --region us-west-2  # Scan specific region
+```
 
-# OPTIONAL FLAGS
-- sage scan --profile my-aws-profile --verbose   # See details
-- sage scan --profile my-aws-profile --quiet     # Only findings
-- sage scan --format json                        # JSON output
-- sage scan --help                               # All options
-  
 
-# Exit Codes (for CI/CD):
-0 = No critical issues
+# Integration
 
-1 = Critical issues found
+## CI/CD Pipeline
+
+GitHub Actions example
+- name: AWS Security Scan
+  run: |
+    pip install sage-iam
+    sage scan --format json --output security-scan.json
+  ### Exit code 1 if critical issues found
