@@ -44,7 +44,6 @@ Basic Commands
 ```bash
 # Scan AWS account
 sage scan
-sage scan --profile production
 ```
 Get Help
 ```
